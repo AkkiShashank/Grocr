@@ -22,7 +22,7 @@
 
 import UIKit
 
-let FirebaseUrl = "https://davideast.firebaseio.com/"
+let FirebaseUrl = "https://grocr-e0e8e.firebaseio.com/"
 let TappableRed = UIColor(red: 255.0/255.0, green: 167.0/255.0, blue: 127.0/255.0, alpha: 1.0)
 
 @UIApplicationMain

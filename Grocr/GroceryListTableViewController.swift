@@ -26,6 +26,7 @@ class GroceryListTableViewController: UITableViewController {
 
   // MARK: Constants
   let ListToUsers = "ListToUsers"
+    let ref=Firebase(url: "https://grocr-e0e8e.firebaseio.com")
   
   // MARK: Properties 
   var items = [GroceryItem]()
@@ -51,6 +52,18 @@ class GroceryListTableViewController: UITableViewController {
   
   override func viewDidAppear(animated: Bool) {
     super.viewDidAppear(animated)
+    ref.observeEventType(.Value, withBlock: { snapshot in
+        var newItems=[GroceryItem]()
+        
+        for item in snapshot.children {
+            let groceryItem=GroceryItem(snapshot: item as! FDataSnapshot)
+            newItems.append(groceryItem)
+        }
+        self.items=newItems
+        self.tableView.reloadData()
+    })
+    
+    
   }
   
   override func viewDidDisappear(animated: Bool) {
@@ -65,16 +78,16 @@ class GroceryListTableViewController: UITableViewController {
   }
   
   override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-    let cell = tableView.dequeueReusableCellWithIdentifier("ItemCell") as! UITableViewCell
+    let cell = tableView.dequeueReusableCellWithIdentifier("ItemCell")
     let groceryItem = items[indexPath.row]
     
-    cell.textLabel?.text = groceryItem.name
-    cell.detailTextLabel?.text = groceryItem.addedByUser
+    cell!.textLabel?.text = groceryItem.name
+    cell!.detailTextLabel?.text = groceryItem.addedByUser
     
     // Determine whether the cell is checked
-    toggleCellCheckbox(cell, isCompleted: groceryItem.completed)
+    toggleCellCheckbox(cell!, isCompleted: groceryItem.completed)
     
-    return cell
+    return cell!
   }
   
   override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
@@ -123,10 +136,10 @@ class GroceryListTableViewController: UITableViewController {
     let saveAction = UIAlertAction(title: "Save",
       style: .Default) { (action: UIAlertAction!) -> Void in
     
-      let textField = alert.textFields![0] as! UITextField
-      let groceryItem = GroceryItem(name: textField.text, addedByUser: self.user.email, completed: false)
-      self.items.append(groceryItem)
-      self.tableView.reloadData()
+      let textField = alert.textFields![0]
+      let groceryItem = GroceryItem(name: textField.text!, addedByUser: self.user.email, completed: false)
+      let groceryItemRef=self.ref.childByAppendingPath(textField.text!.lowercaseString)
+      groceryItemRef.setValue(groceryItem.toAnyObject())
     }
     
     let cancelAction = UIAlertAction(title: "Cancel",
